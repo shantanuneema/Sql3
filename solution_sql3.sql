@@ -36,4 +36,15 @@ WHERE activity_date > '2019-06-27' AND activity_date <= '2019-07-27'
 GROUP BY activity_date
 
 -- Solution to Problem 4
--- Skipped
+CREATE PROCEDURE PivotProducts()
+BEGIN
+    SET SESSION GROUP_CONCAT_MAX_LEN = 1000000;
+    SELECT GROUP_CONCAT(DISTINCT CONCAT('SUM(IF(store = "', store, '", price, null)) AS ', store)) 
+    INTO @sql FROM products;
+    
+    SET @sql = CONCAT('SELECT product_id, ', @sql, ' FROM Products GROUP BY 1');
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END;
